@@ -1,0 +1,18 @@
+---
+- name: Install and configure apache
+  hosts: 10.0.0.12
+  become: yes
+  tasks:
+    - name: Install apache package
+      yum:
+        name: httpd
+        state: present
+    - name: Copy the index file
+      copy:
+        src: file/index.html
+        dest: /var/www/html/index.html
+    - name: Start apache service
+      service:
+        name: httpd
+        state: started
+        

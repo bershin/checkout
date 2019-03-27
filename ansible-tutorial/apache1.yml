@@ -1,0 +1,43 @@
+---
+- name: Install and configure apache
+  hosts: 10.0.0.11
+  become: yes
+  tasks:
+    - name: Install apache package
+      yum:
+        name: httpd
+        state: present
+        
+    - name: Copy the index file
+      copy:
+        content: "Welcome to bershins world\n"
+        dest: /var/www/html/index.html
+        
+    - name: Firewall is running
+      service:
+        name: firewalld
+        enabled: true
+        state: started
+        
+    - name: Permit firewall
+      firewalld:
+        service: http
+        permanent: true
+        state: enabled
+        immediate: yes
+        
+    - name: Start apache service
+      service:
+        name: httpd
+        enabled: true
+        state: started
+        
+- name: Test the website
+  hosts: localhost
+  become: no
+  tasks:
+    - name: Connect to internet web server
+      uri:
+        url: http://10.0.0.11
+        return_content: yes
+        status_code: 200

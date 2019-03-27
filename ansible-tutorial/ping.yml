@@ -1,0 +1,7 @@
+---
+- name: Test the connectivity
+  hosts: all
+  tasks:
+    - name: Host is reachable
+      ping:
+...
