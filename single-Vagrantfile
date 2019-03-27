@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Every Vagrant development environment requires a box. You can search for
+# boxes at https://atlas.hashicorp.com/search.
+BOX_IMAGE = "centos/7"
+
+Vagrant.configure("2") do |config|
+  config.vm.define "master" do |subconfig|
+    subconfig.vm.box = BOX_IMAGE
+    subconfig.vm.hostname = "master"
+    subconfig.vm.network :private_network, ip: "10.0.0.10"
+  end
+  
+  # Install avahi on all machines  
+  config.vm.provision "shell", inline: <<-SHELL
+#   yum install -y avahi-daemon libnss-mdns
+	sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+	systemctl restart sshd
+	useradd -g vagrant bjohn
+	echo 'ca272dcb' | passwd --stdin bjohn
+	mkdir /home/bjohn/.ssh
+	chown bjohn.vagrant /home/bjohn/.ssh
+	cat /vagrant/id_rsa.pub > /home/bjohn/.ssh/authorized_keys
+	chown bjohn.vagrant /home/bjohn/.ssh/authorized_keys
+	chmod 600 /home/bjohn/.ssh/authorized_keys
+  SHELL
+end
